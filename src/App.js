@@ -10,191 +10,207 @@ class App extends Component {
     password: '',
     count: 0,
     showPassword: false,
-    newList: [],
+    passwordList: [],
     searchInput: '',
   }
 
-  onShowPassword = () => {
-    const {showPassword} = this.state
-    this.setState({showPassword: !showPassword})
+  handleInputChange = (field, value) => {
+    this.setState({[field]: value})
   }
 
-  onAddPassword = event => {
+  handleAddPassword = event => {
     event.preventDefault()
     const {website, username, password} = this.state
 
-    const newDetails = {
-      id: uuidv4(),
-      website,
-      username,
-      password,
-    }
+    if (website && username && password) {
+      const newPassword = {
+        id: uuidv4(),
+        website,
+        username,
+        password,
+      }
 
+      this.setState(prevState => ({
+        passwordList: [...prevState.passwordList, newPassword],
+        count: prevState.passwordList.length + 1,
+        website: '',
+        username: '',
+        password: '',
+      }))
+    }
+  }
+
+  handleDeletePassword = id => {
     this.setState(prevState => ({
-      newList: [...prevState.newList, newDetails],
-      count: prevState.count + 1,
-      website: '',
-      username: '',
-      password: '',
+      passwordList: prevState.passwordList.filter(item => item.id !== id),
+      count: prevState.count - 1,
     }))
   }
 
-  onWebsite = event => {
-    this.setState({website: event.target.value})
-  }
-
-  onUsername = event => {
-    this.setState({username: event.target.value})
-  }
-
-  onPassword = event => {
-    this.setState({password: event.target.value})
-  }
-
-  searchItems = event => {
+  handleSearch = event => {
     this.setState({searchInput: event.target.value})
   }
 
-  deleteDetails = id => {
-    const {newList} = this.state
-    const filteredList = newList.filter(eachItem => eachItem.id !== id)
-    this.setState(prevState => ({
-      count: prevState.count - 1,
-      newList: filteredList,
-    }))
+  togglePasswordVisibility = () => {
+    this.setState(prevState => ({showPassword: !prevState.showPassword}))
+  }
+
+  getFilteredPasswords = () => {
+    const {passwordList, searchInput} = this.state
+    return passwordList.filter(item =>
+      item.website.toLowerCase().includes(searchInput.toLowerCase()),
+    )
   }
 
   render() {
-    const {
-      website,
-      username,
-      password,
-      count,
-      newList,
-      showPassword,
-      searchInput,
-    } = this.state
-
-    const filteredPasswordList = newList.filter(eachItem =>
-      eachItem.website.toLowerCase().includes(searchInput.toLowerCase()),
-    )
-    const isNoPassword = filteredPasswordList.length === 0
+    const {website, username, password, showPassword, count} = this.state
+    const filteredPasswords = this.getFilteredPasswords()
+    const isEmpty = filteredPasswords.length === 0
 
     return (
-      <div className="bg-container">
-        <img
-          src="https://assets.ccbp.in/frontend/react-js/password-manager-logo-img.png"
-          className="app-logo"
-          alt="app logo"
-        />
-        <div className="top-container">
-          <form className="input-card-container" onSubmit={this.onAddPassword}>
-            <h1 className="input-heading">Add New Password</h1>
-            <div className="input-container">
-              <img
-                src="https://assets.ccbp.in/frontend/react-js/password-manager-website-img.png"
-                className="logo"
-                alt="website"
-              />
-              <input
-                className="input"
-                placeholder="Enter Website"
-                type="text"
-                value={website}
-                onChange={this.onWebsite}
-              />
-            </div>
-            <div className="input-container">
-              <img
-                src="https://assets.ccbp.in/frontend/react-js/password-manager-username-img.png"
-                className="logo"
-                alt="username"
-              />
-              <input
-                className="input"
-                placeholder="Enter username"
-                type="text"
-                value={username}
-                onChange={this.onUsername}
-              />
-            </div>
-            <div className="input-container">
-              <img
-                src="https://assets.ccbp.in/frontend/react-js/password-manager-password-img.png"
-                className="logo"
-                alt="password"
-              />
-              <input
-                className="input"
-                placeholder="Enter Password"
-                type="password"
-                value={password}
-                onChange={this.onPassword}
-              />
-            </div>
-            <button className="add-btn" type="submit">
-              Add
-            </button>
-          </form>
+      <div className="app-container">
+        <div className="header">
           <img
-            src="https://assets.ccbp.in/frontend/react-js/password-manager-lg-img.png"
-            className="app-image"
-            alt="password manager"
+            src="https://assets.ccbp.in/frontend/react-js/password-manager-logo-img.png"
+            alt="app logo"
+            className="logo"
           />
         </div>
-        <div className="bottom-container">
-          <div className="bottom-heading-search">
-            <div className="bottom-heading-container">
-              <h1 className="input-heading">Your Passwords</h1>
-              <p className="count">{count}</p>
-            </div>
-            <div className="search-container">
-              <img
-                src="https://assets.ccbp.in/frontend/react-js/password-manager-search-img.png"
-                className="logo"
-                alt="search"
-              />
-              <input
-                className="search"
-                type="search"
-                value={searchInput}
-                onChange={this.searchItems}
-              />
-            </div>
-          </div>
-          <hr className="line" />
-          <div className="checkbox-container">
-            <input
-              type="checkbox"
-              className="checkbox"
-              onClick={this.onShowPassword}
-              id="check"
-            />
-            <label className="para" htmlFor="check">
-              Show Passwords
-            </label>
-          </div>
-          {isNoPassword ? (
-            <div className="nopass">
-              <img
-                src="https://assets.ccbp.in/frontend/react-js/no-passwords-img.png"
-                className="no-pw"
-                alt="no passwords"
-              />
-              <p className="input-heading">No Passwords</p>
-            </div>
-          ) : (
-            <ul className="list-container">
-              {filteredPasswordList.map(eachItem => (
-                <PasswordItem
-                  listDetails={eachItem}
-                  key={eachItem.id}
-                  showPassword={showPassword}
-                  deleteDetails={this.deleteDetails}
+
+        <div className="password-manager">
+          <div className="add-password-section">
+            <form className="password-form" onSubmit={this.handleAddPassword}>
+              <h1 className="form-title">Add New Password</h1>
+
+              <div className="input-group">
+                <div className="input-icon-container">
+                  <img
+                    src="https://assets.ccbp.in/frontend/react-js/password-manager-website-img.png"
+                    alt="website"
+                    className="input-icon"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Enter Website"
+                  className="form-input"
+                  value={website}
+                  onChange={e =>
+                    this.handleInputChange('website', e.target.value)
+                  }
                 />
-              ))}
-            </ul>
-          )}
+              </div>
+
+              <div className="input-group">
+                <div className="input-icon-container">
+                  <img
+                    src="https://assets.ccbp.in/frontend/react-js/password-manager-username-img.png"
+                    alt="username"
+                    className="input-icon"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Enter Username"
+                  className="form-input"
+                  value={username}
+                  onChange={e =>
+                    this.handleInputChange('username', e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="input-group">
+                <div className="input-icon-container">
+                  <img
+                    src="https://assets.ccbp.in/frontend/react-js/password-manager-password-img.png"
+                    alt="password"
+                    className="input-icon"
+                  />
+                </div>
+                <input
+                  type="password"
+                  placeholder="Enter Password"
+                  className="form-input"
+                  value={password}
+                  onChange={e =>
+                    this.handleInputChange('password', e.target.value)
+                  }
+                />
+              </div>
+
+              <button type="submit" className="add-button">
+                Add
+              </button>
+            </form>
+
+            <div className="password-manager-image-container">
+              <img
+                src="https://assets.ccbp.in/frontend/react-js/password-manager-lg-img.png"
+                alt="password manager"
+                className="password-manager-image"
+              />
+            </div>
+          </div>
+
+          <div className="password-list-section">
+            <div className="password-list-header">
+              <div className="password-count-container">
+                <h2 className="section-title">Your Passwords</h2>
+                <span className="password-count">{count}</span>
+              </div>
+
+              <div className="search-container">
+                <div className="search-icon-container">
+                  <img
+                    src="https://assets.ccbp.in/frontend/react-js/password-manager-search-img.png"
+                    alt="search"
+                    className="search-icon"
+                  />
+                </div>
+                <input
+                  type="search"
+                  className="search-input"
+                  placeholder="Search"
+                  onChange={this.handleSearch}
+                />
+              </div>
+            </div>
+
+            <hr className="divider" />
+
+            <div className="show-password-toggle">
+              <input
+                type="checkbox"
+                id="showPassword"
+                checked={showPassword}
+                onChange={this.togglePasswordVisibility}
+              />
+              <label htmlFor="showPassword">Show Passwords</label>
+            </div>
+
+            {isEmpty ? (
+              <div className="empty-state">
+                <img
+                  src="https://assets.ccbp.in/frontend/react-js/no-passwords-img.png"
+                  alt="no passwords"
+                  className="empty-image"
+                />
+                <p className="empty-message">No Passwords</p>
+              </div>
+            ) : (
+              <ul className="password-list">
+                {filteredPasswords.map(passwordItem => (
+                  <PasswordItem
+                    key={passwordItem.id}
+                    passwordDetails={passwordItem}
+                    showPassword={showPassword}
+                    onDelete={this.handleDeletePassword}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     )
