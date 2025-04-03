@@ -1,40 +1,54 @@
-import React from 'react'
 import './index.css'
 
-const PasswordItem = props => {
-  const {listDetails, showPassword, deleteDetails} = props
-  const {id, website, username, password} = listDetails
+const PasswordItem = ({passwordDetails, showPassword, onDelete}) => {
+  const {id, website, username, password} = passwordDetails
 
-  const onDelete = () => {
-    deleteDetails(id)
+  const getInitialBackgroundColor = () => {
+    const colors = [
+      '#7683cb',
+      '#f59e0b',
+      '#10b981',
+      '#f97316',
+      '#14b8a6',
+      '#b91c1c',
+      '#0ea5e9',
+    ]
+    return colors[Math.floor(Math.random() * colors.length)]
   }
 
   return (
-    <li className="list">
-      <p className="icon">{username[0].toUpperCase()}</p>
-      <div className="details">
-        <p>{website}</p>
-        <p>{username}</p>
-        {showPassword ? (
-          <p>{password}</p>
-        ) : (
-          <img
-            src="https://assets.ccbp.in/frontend/react-js/password-manager-stars-img.png"
-            alt="stars"
-            className="stars"
-          />
-        )}
+    <li className="password-item">
+      <div className="password-item-content">
+        <div
+          className="password-profile"
+          style={{backgroundColor: getInitialBackgroundColor()}}
+        >
+          {username[0].toUpperCase()}
+        </div>
+        <div className="password-details">
+          <p className="password-website">{website}</p>
+          <p className="password-username">{username}</p>
+          {showPassword ? (
+            <p className="password-text">{password}</p>
+          ) : (
+            <img
+              src="https://assets.ccbp.in/frontend/react-js/password-manager-stars-img.png"
+              alt="stars"
+              className="password-stars"
+            />
+          )}
+        </div>
       </div>
       <button
-        className="delete"
         type="button"
-        onClick={onDelete}
+        className="delete-button"
+        onClick={() => onDelete(id)}
         data-testid="delete"
       >
         <img
           src="https://assets.ccbp.in/frontend/react-js/password-manager-delete-img.png"
-          className="logo"
           alt="delete"
+          className="delete-icon"
         />
       </button>
     </li>
